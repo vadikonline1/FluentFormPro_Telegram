@@ -1,4 +1,4 @@
-# FluentFormPro_Telegram
+# FluentFormPro_Telegram_Topic
 FluentFormPro telegram bot send to topic integration
 
 Add this files in location:  
