@@ -27,13 +27,11 @@ class TelegramApi
         $this->chatId = $chatId;
         return $this;
     }
-
     public function setMessageThreadId($messageThreadId)
     {
         $this->messageThreadId = $messageThreadId; // Method to set messageThreadId
         return $this;
     }
-
     public function setToken($token)
     {
         $this->token = $token;
@@ -52,7 +50,7 @@ class TelegramApi
             return new \WP_Error(300, 'Message is required', []);
         }
 
-        if (!$this->token) {
+        if(!$this->token) {
             return new \WP_Error(300, 'Token is required', []);
         }
 
@@ -60,15 +58,15 @@ class TelegramApi
             $parseMode = $this->parseMode;
         }
 
-        if ($parseMode == 'none') {
+        if($parseMode == 'none') {
             $message = $this->clearText($message);
         }
 
         return $this->sendRequest('sendMessage', [
-            'chat_id' => $this->chatId,
+            'chat_id'    => $this->chatId,
             'parse_mode' => $parseMode,
-            'text' => urlencode($message),
-            'message_thread_id' => $this->messageThreadId // Corrected parameter name
+            'text'       => urlencode($message),
+            'message_thread_id' => $this->messageThreadId
         ]);
     }
 
@@ -84,20 +82,19 @@ class TelegramApi
 
     private function clearText($html)
     {
-        return preg_replace("/\n\s+/", "\n", rtrim(html_entity_decode(strip_tags($html))));
+        return preg_replace( "/\n\s+/", "\n", rtrim(html_entity_decode(strip_tags($html))) );
     }
 
-    public function sendRequest($endPoint, $args = [])
+    public function sendRequest($endPont, $args = [])
     {
-        if (!$this->token) {
+        if(!$this->token) {
             return new \WP_Error(300, 'Token is required', []);
         }
-
-        $url = add_query_arg($args, $this->getBaseUrl() . $endPoint);
+        $url = add_query_arg($args, $this->getBaseUrl() . $endPont);
 
         $ch = curl_init();
         $optArray = array(
-            CURLOPT_URL => $url,
+            CURLOPT_URL            => $url,
             CURLOPT_RETURNTRANSFER => true
         );
         curl_setopt_array($ch, $optArray);
@@ -106,7 +103,7 @@ class TelegramApi
 
         $result = \json_decode($result, true);
         if (isset($result['ok'])) {
-            if (!empty($result['ok'])) {
+            if(!empty($result['ok'])) {
                 return $result;
             }
             return new \WP_Error($result['error_code'], $result['description'], $result);
