@@ -6,17 +6,17 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
 
-use FluentForm\App\Services\Integrations\IntegrationManager;
+use FluentForm\App\Http\Controllers\IntegrationManagerController;
 use FluentForm\Framework\Foundation\Application;
 use FluentForm\Framework\Helpers\ArrayHelper;
 
-class Bootstrap extends IntegrationManager
+class Bootstrap extends IntegrationManagerController
 {
     public function __construct(Application $app)
     {
         parent::__construct(
             $app,
-            'Telegram Messenger',
+            'Telegram ',
             'telegram',
             '_fluentform_telegram_settings',
             'telegram_feed',
@@ -42,14 +42,14 @@ class Bootstrap extends IntegrationManager
             'fields'           => [
                 'bot_token' => [
                     'type'        => 'password',
-                    'placeholder' => __('Bot Token', 'fluentformpro'),
+                    'placeholder' => __('bot_token', 'fluentformpro'),
                     'label_tips'  => __("Enter your Telegram Bot Token", 'fluentformpro'),
-                    'label'       => __('Bot Token', 'fluentformpro'),
+                    'label'       => __(' Bot Token', 'fluentformpro'),
                 ],
                 'chat_id'   => [
                     'type'        => 'text',
                     'placeholder' => __('Channel Username/ID', 'fluentformpro'),
-                    'label_tips'  => __("Enter your Telegram API channel user ID or message ID. Please check documentation for more details.", 'fluentformpro'),
+                    'label_tips'  => __("Enter your Telegram API channel user ID, You can also use message id. Please check documentation for more details.", 'fluentformpro'),
                     'label'       => __('Default Channel/Group Chat ID', 'fluentformpro'),
                 ],
                 'message'   => [
@@ -90,9 +90,9 @@ class Bootstrap extends IntegrationManager
             ];
         }
         $defaults = [
-            'status'            => '',
-            'chat_id'           => '',
-            'bot_token'         => '',
+            'status'    => '',
+            'chat_id'   => '',
+            'bot_token' => '',
             'message_thread_id' => ''
         ];
 
@@ -105,14 +105,14 @@ class Bootstrap extends IntegrationManager
             $settings['status'] = false;
             update_option($this->optionKey, $settings, 'no');
             wp_send_json_success([
-                'message' => __('Your settings have been updated', 'fluentformpro'),
+                'message' => __('Your settings has been updated', 'fluentformpro'),
                 'status'  => false
             ], 200);
         }
 
-        $responseMessage = __('Your ' . $this->integrationKey . ' API key has been verified and successfully set', 'fluentformpro');
+        $responseMessage = __('Your ' . $this->integrationKey . ' api key has been verified and successfully set', 'fluentformpro');
         $status = false;
-
+        // Verify API key now
         try {
             $api = $this->getApiClient($settings['bot_token']);
 
@@ -123,9 +123,9 @@ class Bootstrap extends IntegrationManager
             }
 
             $apiSettings = [
-                'bot_token'         => sanitize_textarea_field($settings['bot_token']),
-                'status'            => true,
-                'chat_id'           => sanitize_textarea_field($settings['chat_id']),
+                'bot_token' => sanitize_textarea_field($settings['bot_token']),
+                'status'    => true,
+                'chat_id'   => sanitize_textarea_field($settings['chat_id']),
                 'message_thread_id' => sanitize_textarea_field($settings['message_thread_id'])
             ];
 
@@ -135,7 +135,7 @@ class Bootstrap extends IntegrationManager
                 $result = $api->sendMessage($message);
                 if (is_wp_error($result)) {
                     $apiSettings['status'] = false;
-                    $responseMessage = 'Your API key is correct, but the message could not be sent to the provided chat ID. Error: ' . $result->get_error_message();
+                    $responseMessage = 'Your api key is right but, the message could not be sent to the provided chat id. Error: ' . $result->get_error_message();
                 }
             }
 
@@ -144,7 +144,7 @@ class Bootstrap extends IntegrationManager
             update_option($this->optionKey, $apiSettings, 'no');
 
         } catch (\Exception $exception) {
-            $settings['status'] = false;
+            $settings ['status'] = false;
             update_option($this->optionKey, $settings, 'no');
             wp_send_json_error([
                 'message' => $exception->getMessage()
@@ -171,7 +171,7 @@ class Bootstrap extends IntegrationManager
             'is_active'             => $this->isConfigured(),
             'configure_title'       => __('Configuration required!', 'fluentformpro'),
             'global_configure_url'  => admin_url('admin.php?page=fluent_forms_settings#general-' . $this->integrationKey . '-settings'),
-            'configure_message'     => __($this->title . ' is not configured yet! Please configure your API first', 'fluentformpro'),
+            'configure_message'     => __($this->title . ' is not configured yet! Please configure your  api first', 'fluentformpro'),
             'configure_button_text' => __('Set ' . $this->title . ' API', 'fluentformpro')
         ];
         return $integrations;
@@ -180,21 +180,22 @@ class Bootstrap extends IntegrationManager
     public function getIntegrationDefaults($settings, $formId)
     {
         return [
-            'name'             => '',
-            'send_message'     => '',
-            'custom_chat_id'   => '',
+            'name'           => '',
+            'send_message'   => '',
+            'custom_chat_id' => '',
             'message_thread_id' => '',
-            'conditionals'     => [
+            'conditionals'   => [
                 'conditions' => [],
                 'status'     => false,
                 'type'       => 'all'
             ],
-            'enabled'          => true
+            'enabled'        => true
         ];
     }
 
     public function getSettingsFields($settings, $formId)
     {
+
         return [
             'fields'              => [
                 [
@@ -217,7 +218,7 @@ class Bootstrap extends IntegrationManager
                     'required'    => false,
                     'placeholder' => __('Custom Chat ID', 'fluentformpro'),
                     'component'   => 'text',
-                    'inline_tip'  => __('Provide custom chat ID if you want to send to a different channel or chat. Leave blank for default.', 'fluentformpro')
+                    'inline_tip'  => __('Provide custom chat id if you want to send a different channel or chat ID. <b>Leave blank for global chat ID</b>', 'fluentformpro')
                 ],
                 [
                     'key'         => 'message_thread_id',
@@ -229,15 +230,15 @@ class Bootstrap extends IntegrationManager
                 ],
                 [
                     'key'       => 'conditionals',
-                    'label'     => __('Conditional Logic', 'fluentformpro'),
-                    'tips'      => __('Enable ' . $this->title . ' integration conditionally based on form submission values', 'fluentformpro'),
+                    'label'     => __('Conditional Logics', 'fluentformpro'),
+                    'tips'      => __('Allow ' . $this->title . ' integration conditionally based on your submission values', 'fluentformpro'),
                     'component' => 'conditional_block'
                 ],
                 [
                     'key'            => 'enabled',
                     'label'          => __('Status', 'fluentformpro'),
                     'component'      => 'checkbox-single',
-                    'checkbox_label' => __('Enable This Feed', 'fluentformpro'),
+                    'checkbox_label' => __('Enable This feed', 'fluentformpro'),
                 ],
             ],
             'button_require_list' => false,
@@ -245,10 +246,13 @@ class Bootstrap extends IntegrationManager
         ];
     }
 
+
     public function getMergeFields($list = false, $listId = false, $formId = false)
     {
+
         return [];
     }
+
 
     /*
      * Form Submission Hooks Here
@@ -257,18 +261,17 @@ class Bootstrap extends IntegrationManager
     {
         $feedData = $feed['processedValues'];
 
-        if (empty($feedData['send_message'])) {
-            return; // Exit if no message to send
+        if (empty ($feedData['send_message'])) {
+            // for now single file  upload only otherwise skip this
+            return;
         }
 
         $settings = $this->getGlobalSettings([]);
 
-        // Exit if integration is not configured
-        if (!$settings['status']) {
+        if(!$settings['status']) {
             return;
         }
 
-        // Check for custom chat ID and topic ID
         if ($chatId = ArrayHelper::get($feedData, 'custom_chat_id')) {
             if (trim($chatId)) {
                 $settings['chat_id'] = $chatId;
@@ -279,29 +282,26 @@ class Bootstrap extends IntegrationManager
                 $settings['message_thread_id'] = $messageThreadId;
             }
         }
-
-        // Send message using Telegram API
         $api = $this->getApiClient($settings['bot_token'], $settings['chat_id'], $settings['message_thread_id']);
         $response = $api->sendMessage($feedData['send_message']);
 
         if (is_wp_error($response)) {
-            // Handle error if message failed to send
             do_action('fluentform/integration_action_result', $feed, 'failed', $response->get_error_message());
             return;
         }
 
-        // Success message if message sent successfully
         $messageId = ArrayHelper::get($response, 'result.message_id');
         do_action(
             'fluentform/integration_action_result',
             $feed,
             'success',
-            __('Telegram feed has been successfully initiated and data pushed. Message ID: ', 'fluentformpro') . $messageId
+            __('Telegram feed has been successfully initialed and pushed data. Message ID: ', 'fluentformpro') . $messageId
         );
     }
 
     protected function getApiClient($token, $chatId = '', $messageThreadId = '')
     {
+
         return new TelegramApi(
             $token,
             $chatId,
