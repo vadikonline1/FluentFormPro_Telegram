@@ -10,7 +10,7 @@ class TelegramApi
 {
     private $token = '';
     private $chatId = '';
-    private $messageThreadId = ''; // Corrected variable name
+    private $messageThreadId = '';
     private $parseMode = 'none';
 
     private $apiBase = 'https://api.telegram.org/bot';
@@ -19,7 +19,7 @@ class TelegramApi
     {
         $this->token = $token;
         $this->chatId = $chatId;
-        $this->messageThreadId = $messageThreadId; // Corrected assignment
+        $this->messageThreadId = $messageThreadId;
     }
 
     public function setChatId($chatId)
@@ -28,6 +28,7 @@ class TelegramApi
         return $this;
     }
     public function setMessageThreadId($messageThreadId)
+
     {
         $this->messageThreadId = $messageThreadId; // Method to set messageThreadId
         return $this;
