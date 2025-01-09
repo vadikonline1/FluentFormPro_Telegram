@@ -28,10 +28,13 @@ class Bootstrap extends IntegrationManagerController
         $this->description = 'Send notification to Telegram channel or group when a form is submitted.';
 
         $this->registerAdminHooks();
+
+//        add_filter('fluentform/notifying_async_' . $this->integrationKey, '__return_false');
     }
 
     public function getGlobalFields($fields)
     {
+
         return [
             'logo'             => $this->logo,
             'menu_title'       => __($this->title . ' Settings', 'fluentformpro'),
@@ -144,6 +147,7 @@ class Bootstrap extends IntegrationManagerController
             update_option($this->optionKey, $apiSettings, 'no');
 
         } catch (\Exception $exception) {
+
             $settings ['status'] = false;
             update_option($this->optionKey, $settings, 'no');
             wp_send_json_error([
@@ -308,4 +312,4 @@ class Bootstrap extends IntegrationManagerController
             $messageThreadId
         );
     }
-}
+} 
